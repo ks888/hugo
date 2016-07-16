@@ -1976,9 +1976,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	transformLinks := transform.NewEmptyTransforms()
 
-	if viper.GetBool("RelativeURLs") || viper.GetBool("CanonifyURLs") {
-		transformLinks = append(transformLinks, transform.AbsURL)
-	}
+	transformLinks = append(transformLinks, transform.AbsURL)
 
 	if s.running() && viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
 		transformLinks = append(transformLinks, transform.LiveReloadInject)
@@ -2005,6 +2003,13 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 			s += "/"
 		}
 		path = []byte(s)
+	} else {
+		permalink := helpers.MakePermalink(viper.GetString("BaseURL"), "")
+		permalink.Scheme = ""
+		permalink.Host = ""
+		permalink.User = nil
+		permalink.Opaque = ""
+		path = []byte(permalink.String())
 	}
 
 	transformer := transform.NewChain(transformLinks...)
